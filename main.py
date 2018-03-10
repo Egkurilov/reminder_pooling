@@ -2,9 +2,10 @@
 from sqlalchemy.orm import sessionmaker
 import migrate
 import telebot
+import config
 
-TOKEN = "*"
-bot = telebot.TeleBot(TOKEN)
+
+bot = telebot.TeleBot(config.TOKEN)
 DBSession = sessionmaker(bind=migrate.engine)
 session = DBSession()
 
