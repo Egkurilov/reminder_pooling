@@ -60,8 +60,8 @@ def ListN(message):
         bot.register_next_step_handler(msg, ListN)
         for msg in session.query(migrate.Message).filter(migrate.Message.chat_id == chat_id):
             for mess in range(msg.id):
-                print(mess + msg.message)
-            bot.send_message(message.chat.id, msg.message)
+                user_message = 'Заметка № {id}, {text}'.format(id=mess, text=msg.message)
+            bot.send_message(message.chat.id, user_message)
         return
 
 def text_note(text):
