@@ -3,67 +3,49 @@ from sqlalchemy.orm import sessionmaker
 import migrate
 import telebot
 import config
+import wordbook
 
 bot = telebot.TeleBot(config.TOKEN)
 DBSession = sessionmaker(bind=migrate.engine)
 session = DBSession()
 
 
-# handlers
 @bot.message_handler(commands=['start', 'go'])
 def start_handler(message):
-    bot.send_message(message.chat.id, 'Привет, когда я вырасту, Я буду напоминать тебе о не завершенных делах :)')
-    bot.send_message(message.chat.id, 'Для того что бы добавить новую заметку напиши "заметка"')
+    bot.send_message(message.chat.id, wordbook.HELLO_MESSAE)
 
 
-@bot.message_handler(commands=['лист', 'list'])
+@bot.message_handler(func=lambda message: True, content_types=['text'])
 def start_handler(message):
+    print(message)
     chat_id = message.chat.id
-    bot.send_message(message.chat.id, 'Список заметок')
-    for msg in session.query(migrate.Message).filter(migrate.Message.chat_id == chat_id):
-        for mess in range (msg.id):
-            print(mess + msg.message)
-        bot.send_message(message.chat.id, msg.message)
-
-
-@bot.message_handler(content_types=['text'])
-def text_handler(message):
     text = message.text.lower()
-    chat_id = message.chat.id
     date = message.date
     if 'заметка' in text:
         send_to_base(text_note(text), date, chat_id, type_note(text))
-        msg = bot.send_message(chat_id, 'Заметка добавлена.')
-        bot.register_next_step_handler(msg, ListN)
-        return
-    # else:
-    #     bot.send_message(chat_id, 'Простите, я вас не понял :(')
+        bot.send_message(chat_id, wordbook.ADD_NOTE)
+    elif 'list' or 'список' in text:
+        bot.send_message(message.chat.id, wordbook.REMIND_LIST)
+        print("zz")
+        # for msg in session.query(migrate.Message).filter(migrate.Message.chat_id == chat_id):
+        #     for mess in range(msg.id):
+        #         print(mess + msg.message)
+        #     bot.send_message(message.chat.id, msg.message)
+    elif 'помощь' or 'help' in text:
+        bot.send_message(message.chat.id, wordbook.COMMAND_LIST)
+    elif 'hh' in text:
+        print("hh")
+    else:
+        bot.send_message(message.chat.id, wordbook.ELSE_MESSAGE)
 
 
-@bot.message_handler(content_types=['photo'])
-def text_handler(message):
-    chat_id = message.chat.id
-    bot.send_message(chat_id, 'Красиво.')
-
-
-def send_to_base(mesasge_text, message_date, chat_id, type_note):
-    new_message = migrate.Message(message=mesasge_text, datetime=message_date, \
+def send_to_base(message_text, message_date, chat_id, type_note):
+    new_message = migrate.Message(message=message_text, datetime=message_date, \
                                   chat_id=chat_id, type=type_note)
     session.add(new_message)
     session.commit()
 
-def ListN(message):
-    chat_id = message.chat.id
-    text = message.text
-    if not text.isdigit():
-        msg = bot.send_message(chat_id, 'что бы посмотреть список заметок напиши "лист"')
-        bot.register_next_step_handler(msg, ListN)
-        for msg in session.query(migrate.Message).filter(migrate.Message.chat_id == chat_id):
-            for mess in range(msg.id):
-                user_message = 'Заметка № {id}, {text}'.format(id=mess, text=msg.message)
-            bot.send_message(message.chat.id, user_message)
-        return
-
+zip()
 def text_note(text):
     text_rem = text.split("заметка ")[1]
     return text_rem

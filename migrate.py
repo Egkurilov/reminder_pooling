@@ -1,7 +1,6 @@
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
-
 
 Base = declarative_base()
 
@@ -14,7 +13,9 @@ class Message(Base):
     datetime = Column(Integer, nullable=False)
     message = Column(String(2500), nullable=False)
     chat_id = Column(Integer, nullable=False)
-    type =  Column(String(250), nullable=False)
+    type = Column(String(250), nullable=False)
+    active = Column(Boolean, default=True, nullable=False)
+
 
 # Create an engine that stores data in the local directory's
 # sqlalchemy_example.db file.
