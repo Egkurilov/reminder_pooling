@@ -24,14 +24,15 @@ def start_handler(message):
     if 'заметка' in text:
         send_to_base(text_note(text), date, chat_id, type_note(text))
         bot.send_message(chat_id, wordbook.ADD_NOTE)
-    elif 'list' or 'список' in text:
+    elif 'list' in text:
         bot.send_message(message.chat.id, wordbook.REMIND_LIST)
-        print("zz")
-        # for msg in session.query(migrate.Message).filter(migrate.Message.chat_id == chat_id):
-        #     for mess in range(msg.id):
-        #         print(mess + msg.message)
-        #     bot.send_message(message.chat.id, msg.message)
-    elif 'помощь' or 'help' in text:
+        for msg in session.query(migrate.Message).filter(migrate.Message.chat_id == chat_id, \
+                                                         migrate.Message.active == '1'):
+            for mess in range(msg.id):
+                result = (str(mess) + " " + msg.message)
+                print(result)
+            bot.send_message(message.chat.id, result)
+    elif 'помощь' in text:
         bot.send_message(message.chat.id, wordbook.COMMAND_LIST)
     elif 'hh' in text:
         print("hh")
